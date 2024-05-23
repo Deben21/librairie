@@ -1,9 +1,10 @@
 const path = require('path');
+
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const errorController = require('./controllers/error');
-const mongoConnect = require('./util/database').mongoConnect;
 const User = require('./models/user');
 
 const app = express();
@@ -18,19 +19,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-  User.findById('664d7c21b4fb250bada97582')
+  User.findById('664f000214f6f25ef934f71a')
     .then(user => {
-      if (!user) {
-        console.log('User not found!');
-        throw new Error('User not found');
-      }
-      req.user = new User(user.name, user.email, user.cart, user._id);
+      req.user = user;
       next();
     })
-    .catch(err => {
-      console.error(err);
-      next(); // You might want to change this to send a response or handle it differently
-    });
+    .catch(err => console.log(err));
 });
 
 app.use('/admin', adminRoutes);
@@ -38,6 +32,25 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
-mongoConnect(() => {
+mongoose
+.connect(
+  'mongodb://localhost:27017/shop'
+)
+.then(result =>{
+  User.findOne().then(user => {
+    if (!user) {
+      const user = new User({
+        name: 'Max',
+        email: 'max@test.com',
+        cart: {
+          items: []
+        }
+      });
+      user.save();
+    }
+  });
   app.listen(3000);
+})
+.catch(err => {
+  console.log(err);
 });
