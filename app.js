@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
+
 const errorController = require('./controllers/error');
 const User = require('./models/user');
 
@@ -19,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-  User.findById('664f000214f6f25ef934f71a')
+  User.findById('668f67c666f29701c1f18cac')
     .then(user => {
       req.user = user;
       next();
